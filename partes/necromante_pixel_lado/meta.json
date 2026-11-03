@@ -1,0 +1,87 @@
+{
+ "ordem": [
+  "braco_sup_tras",
+  "antebraco_tras",
+  "mao_tras",
+  "coxa_tras",
+  "canela_tras",
+  "pe_tras",
+  "coxa_frente",
+  "canela_frente",
+  "pe_frente",
+  "quadril",
+  "tronco",
+  "cabeca",
+  "arma",
+  "braco_sup_frente",
+  "antebraco_frente",
+  "mao_frente"
+ ],
+ "pivots": {
+  "braco_sup_tras": [
+   24.5,
+   27.0
+  ],
+  "antebraco_tras": [
+   21.0,
+   34.0
+  ],
+  "mao_tras": [
+   17.5,
+   39.5
+  ],
+  "coxa_tras": [
+   24.0,
+   44.5
+  ],
+  "canela_tras": [
+   23.0,
+   52.5
+  ],
+  "pe_tras": [
+   21.5,
+   60.5
+  ],
+  "coxa_frente": [
+   27.0,
+   44.5
+  ],
+  "canela_frente": [
+   28.5,
+   52.5
+  ],
+  "pe_frente": [
+   29.5,
+   60.5
+  ],
+  "quadril": [
+   26.0,
+   43.5
+  ],
+  "tronco": [
+   26.5,
+   39.5
+  ],
+  "cabeca": [
+   27.5,
+   24.0
+  ],
+  "arma": [
+   43.5,
+   35.0
+  ],
+  "braco_sup_frente": [
+   28.5,
+   27.0
+  ],
+  "antebraco_frente": [
+   34.0,
+   32.5
+  ],
+  "mao_frente": [
+   40.5,
+   34.5
+  ]
+ },
+ "comentario": "Necromante pixel art 64x64 - vista lateral, virado para a direita. P\u00e9s na linha 62. data-pivot em pixels."
+}
