@@ -52,10 +52,6 @@ body{background:var(--noite);color:var(--pergaminho);font-family:var(--texto);ov
 .st i{position:absolute;left:0;top:0;bottom:0;width:100%;background:#d8404c;transition:width .15s}
 #mp i{background:#4f8fd8}
 .st span{position:relative;display:block;text-align:center;font-size:11px;line-height:16px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.04em}
-.alvo{position:absolute;left:50%;top:calc(130px + env(safe-area-inset-top,0px));transform:translateX(-50%);min-width:220px;text-align:center;
-  background:rgba(18,14,28,.7);border:1px solid rgba(232,80,91,.6);border-radius:12px;padding:8px 14px}
-.alvo b{display:block;font-family:var(--display);font-weight:400;font-size:18px;margin-bottom:6px}
-.alvo .st{height:8px}
 .runas{pointer-events:auto;position:absolute;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom,0px));display:flex;gap:8px;
   flex-wrap:wrap;justify-content:center;max-width:calc(100% - 32px)}
 .runas button{position:relative;overflow:hidden;display:grid;justify-items:center;gap:1px;min-width:86px;padding:8px 10px 7px;cursor:pointer;
@@ -64,7 +60,9 @@ body{background:var(--noite);color:var(--pergaminho);font-family:var(--texto);ov
 .runas small{font-size:11px;opacity:.7}
 .runas kbd{font:700 11px var(--texto);background:rgba(241,230,208,.16);border-radius:5px;padding:1px 6px}
 .runa::after{content:"";position:absolute;left:0;right:0;bottom:0;height:var(--cd,0%);background:rgba(5,3,10,.62);pointer-events:none}
-#r-raio{border-color:rgba(139,224,74,.6)}#r-explosao{border-color:rgba(255,138,58,.6)}#r-cura{border-color:rgba(127,224,255,.6)}
+#r-raio{border-color:rgba(139,224,74,.6)}#r-explosao{border-color:rgba(255,138,58,.6)}#r-gfb{border-color:rgba(255,90,42,.7)}#r-cura{border-color:rgba(127,224,255,.6)}
+.runa[aria-pressed="true"]{background:rgba(217,164,58,.9);color:var(--tinta);border-color:var(--ouro)}
+.mirando{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(96px + env(safe-area-inset-bottom,0px));background:rgba(18,14,28,.8);border:1px solid var(--ouro);border-radius:999px;padding:6px 14px;font-size:15px;white-space:nowrap}.mirando b{font-family:var(--display);font-weight:400;color:var(--ouro);font-size:18px}
 .runa.sem{opacity:.45}.runa.longe span{text-decoration:line-through;text-decoration-color:rgba(232,80,91,.8)}
 .util[aria-pressed="true"]{background:var(--ouro);color:var(--tinta)}
 .runas button:focus-visible{outline:2px solid var(--veneno);outline-offset:2px}
@@ -73,13 +71,13 @@ body{background:var(--noite);color:var(--pergaminho);font-family:var(--texto);ov
 .msg.on{opacity:1}
 .morte{position:absolute;inset:0;display:grid;place-content:center;text-align:center;gap:6px;background:rgba(60,0,10,.35);pointer-events:none}
 .morte strong{font-family:var(--display);font-weight:400;font-size:clamp(40px,7vw,80px);color:#ff8a7a;text-shadow:0 2px 20px #000}
-.dica{bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+.dica{bottom:calc(96px + env(safe-area-inset-bottom,0px));max-width:calc(50% - 260px)}
 .aviso{bottom:calc(150px + env(safe-area-inset-bottom,0px))}
-@media (max-width:640px){.dica{display:none}.trilha{flex-basis:100%}.escolha{justify-content:flex-start}.runas button{min-width:64px;padding:6px 8px}.runas small{display:none}.alvo{top:auto;bottom:calc(120px + env(safe-area-inset-bottom,0px))}}
+@media (max-width:640px){.dica{display:none}.trilha{flex-basis:100%}.escolha{justify-content:flex-start}.runas button{min-width:64px;padding:6px 8px}.runas small{display:none}}
 @media (prefers-reduced-motion:reduce){.titulo{transition:none}}
 </style></head><body>
 
-<div id="jogo" tabindex="0" aria-label="Protótipo: ande da Catedral até o Cavalo Babão e teste as runas">
+<div id="jogo" tabindex="0" aria-label="Protótipo: ande da Catedral até o Cavalo Babão e lance runas clicando no chão">
 <svg id="mundo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
 <defs>
 <pattern id="petit" width="96" height="96" patternUnits="userSpaceOnUse">
@@ -1654,7 +1652,7 @@ body{background:var(--noite);color:var(--pergaminho);font-family:var(--texto);ov
 <path d="M2372,1238 l9,-4 l4,6 l-9,4 Z" fill="#a8553a" opacity="0.8"/>
 <path d="M2006,1451 l9,-4 l4,6 l-9,4 Z" fill="#a8553a" opacity="0.8"/>
 </g>
-<g id="grade"></g><g id="gradeOcc"></g>
+<g id="grade"></g><g id="gradeOcc"></g><g id="mira"></g>
 <ellipse id="alcance" cx="0" cy="0" rx="560" ry="403" fill="none" stroke="#8be04a" stroke-width="5" stroke-dasharray="18 12" opacity="0"/>
 <g id="objetos"><g data-y="520"><rect x="-30" y="276" width="278" height="244" rx="0" fill="#b98ac9" stroke="#1e1a24" stroke-width="3"/>
 <rect x="-30" y="276" width="14" height="244" rx="0" fill="#9a6eab"/>
@@ -2416,14 +2414,14 @@ body{background:var(--noite);color:var(--pergaminho);font-family:var(--texto);ov
    <button type="button" id="p-cachorro" data-p="cachorro" aria-pressed="false">Cachorro zumbi</button>
   </div>
  </div>
- <div class="alvo" hidden><b></b><div class="st"><i></i></div></div>
- <div class="dica">WASD ou setas andam · clique num personagem para mirar · 1 2 3 usam runas · Tab troca o alvo · G mostra a grade</div>
+ <div class="dica">WASD ou setas andam · 1 2 3 escolhem a runa e o clique no chão lança · 4 cura · Esc ou botão direito cancela · G mostra a grade</div>
  <div class="msg" role="status"></div>
+ <div class="mirando" hidden>Mirando <b></b> · clique no chão onde está o alvo</div>
  <div class="runas" role="group" aria-label="Runas">
-  <button type="button" class="runa" id="r-raio" data-r="0"><kbd>1</kbd><span>Raio</span><small>alvo · 18 mana</small></button>
-  <button type="button" class="runa" id="r-explosao" data-r="1"><kbd>2</kbd><span>Explosão</span><small>área · 32 mana</small></button>
-  <button type="button" class="runa" id="r-cura" data-r="2"><kbd>3</kbd><span>Cura</span><small>você · 24 mana</small></button>
-  <button type="button" class="util" id="btn-alvo"><kbd>Tab</kbd><span>Alvo</span></button>
+  <button type="button" class="runa" id="r-raio" data-r="0" aria-pressed="false"><kbd>1</kbd><span>Raio</span><small>1 quadro · 18 mana</small></button>
+  <button type="button" class="runa" id="r-explosao" data-r="1" aria-pressed="false"><kbd>2</kbd><span>Explosão</span><small>cruz · 30 mana</small></button>
+  <button type="button" class="runa" id="r-gfb" data-r="2" aria-pressed="false"><kbd>3</kbd><span>Bola de fogo</span><small>raio 3 · 40 mana</small></button>
+  <button type="button" class="runa" id="r-cura" data-r="3" aria-pressed="false"><kbd>4</kbd><span>Cura</span><small>você · 24 mana</small></button>
   <button type="button" class="util" id="btn-grade" aria-pressed="false"><kbd>G</kbd><span>Grade</span></button>
  </div>
  <div class="morte" hidden><strong>Você morreu</strong><span>Renascendo na Catedral…</span></div>
@@ -2546,7 +2544,6 @@ function animar(a,dt,t){
   a.corpo.setAttribute('transform',`scale(${a.dir*a.s} ${a.s}) translate(${-cx} -240)`);
   a.el.setAttribute('transform',`translate(${a.x.toFixed(1)} ${a.y.toFixed(1)})`);
   a.vida.setAttribute('width',Math.max(0,76*a.hp/a.hpMax).toFixed(1));
-  a.anel.setAttribute('opacity',jogador&&jogador.alvo===a?0.95:0);
   a.el.dataset.y=a.y;
   let n;
   while((n=a.el.previousElementSibling)&&+n.dataset.y>a.y) cena.insertBefore(a.el,n);
@@ -2554,45 +2551,60 @@ function animar(a,dt,t){
 }
 
 // ================= runas
+const TW=72, TH=34; // 1 "sqm" de runa = 3x2 células da grade lógica
+const FORMAS={um:[[0,0]],cruz:[[0,0],[1,0],[-1,0],[0,1],[0,-1]],
+  gfb:(()=>{const o=[];[3,5,7,7,7,5,3].forEach((n,r)=>{for(let k=0;k<n;k++)o.push([k-(n-1)/2,r-3]);});return o;})()};
 const RUNAS=[
-  {id:'raio',nome:'Raio',tecla:'1',mana:18,alcance:560,dano:[30,46],tipo:'alvo',cor:'#8be04a'},
-  {id:'explosao',nome:'Explosão',tecla:'2',mana:32,alcance:480,raio:130,dano:[22,34],tipo:'area',cor:'#ff8a3a'},
-  {id:'cura',nome:'Cura',tecla:'3',mana:24,cura:[42,60],tipo:'proprio',cor:'#7fe0ff'}];
+  {id:'raio',nome:'Raio',tecla:'1',mana:18,alcance:620,dano:[40,55],forma:'um',cor:'#8be04a'},
+  {id:'explosao',nome:'Explosão',tecla:'2',mana:30,alcance:560,dano:[28,40],forma:'cruz',cor:'#ff8a3a'},
+  {id:'gfb',nome:'Bola de fogo',tecla:'3',mana:40,alcance:560,dano:[20,32],forma:'gfb',cor:'#ff5a2a'},
+  {id:'cura',nome:'Cura',tecla:'4',mana:24,cura:[42,60],forma:null,cor:'#7fe0ff'}];
 const EXAUSTO=1.0;
+const tileDe=(x,y)=>[Math.floor(x/TW),Math.floor((y-FACH)/TH)];
+const centro=(ti,tj)=>({x:(ti+.5)*TW,y:FACH+(tj+.5)*TH});
+function areaTiles(runa,ti,tj){return FORMAS[runa.forma].map(([a,b])=>[ti+a,tj+b]).filter(([i,j])=>{
+  if(i<0||j<0||i*TW>=WW||FACH+j*TH>=BASE)return false;const c=centro(i,j),ci=cx_(c.x),cj=cy_(c.y);return !(ci>=0&&cj>=0&&ci<GX&&cj<GY&&parede[cj*GX+ci]);});}
+function atingidos(tiles,exceto){const k=new Set();for(const [ti,tj] of tiles)for(let j=tj*2;j<tj*2+2;j++)for(let i=ti*3;i<ti*3+3;i++)k.add(j*GX+i);
+  return atores.filter(a=>a!==exceto&&a.vivo&&a.cel&&a.cel.some(c=>k.has(c)));}
+function validar(c,runa,ti,tj){const p=centro(ti,tj);if(dist(c,p)>runa.alcance)return 'Fora de alcance';if(!visao(c,p))return 'Sem linha de visão';return '';}
 let projeteis=[];
 const peito=a=>({x:a.x,y:a.y-a.altura*0.55});
 const mao=a=>({x:a.x+a.dir*a.altura*0.35,y:a.y-a.altura*0.72});
 function aviso(txt){const e=$('.msg');e.textContent=txt;e.classList.add('on');clearTimeout(aviso.t);aviso.t=setTimeout(()=>e.classList.remove('on'),1100);}
-function usarRuna(c,runa,alvo,silencioso){
+function usarRuna(c,runa,pt,silencioso){
   const t=agora(), falha=m=>{if(!silencioso)aviso(m);return false;};
   if(!c.vivo)return false;
   if(t<c.exausto)return falha('Exausto');
   if(c.mp<runa.mana)return falha('Mana insuficiente');
-  if(runa.tipo!=='proprio'){
-    if(!alvo||!alvo.vivo)return falha('Escolha um alvo (clique ou Tab)');
-    if(dist(c,alvo)>runa.alcance)return falha('Alvo fora de alcance');
-    if(!visao(c,alvo))return falha('Sem linha de visão');
-    c.dir=alvo.x>c.x?1:-1;
-  }
+  let ti,tj;
+  if(runa.forma){[ti,tj]=tileDe(pt.x,pt.y);const erro=validar(c,runa,ti,tj);if(erro)return falha(erro);c.dir=centro(ti,tj).x>c.x?1:-1;}
   c.mp-=runa.mana; c.exausto=t+EXAUSTO;
   if(c.rig!=='quad')c.acao={anim:CONJURAR,t0:t};
-  if(runa.tipo==='proprio'){curar(c,Math.round(rand(...runa.cura)));brilhoCura(c);return true;}
-  setTimeout(()=>lancar(c,runa,alvo),180);
+  if(!runa.forma){curar(c,Math.round(rand(...runa.cura)));brilhoCura(c);return true;}
+  setTimeout(()=>lancar(c,runa,ti,tj),180);
   return true;
 }
-function lancar(c,runa,alvo){
-  if(!alvo.vivo)return;
-  const o=mao(c), g=mk('g',{},efx);
-  mk('circle',{r:runa.id==='raio'?26:34,fill:`url(#${runa.id==='raio'?'luzverde':'luz'})`},g);
-  mk('circle',{r:runa.id==='raio'?9:13,fill:runa.cor,stroke:'#1a1422','stroke-width':3},g);
-  mk('circle',{r:runa.id==='raio'?3.5:5,fill:'#fffbe8'},g);
-  projeteis.push({g,x:o.x,y:o.y,c,runa,alvo,rastro:0});
+function lancar(c,runa,ti,tj){
+  if(!c.vivo)return;
+  const o=mao(c), d=centro(ti,tj), g=mk('g',{},efx), big=runa.forma!=='um';
+  mk('circle',{r:big?34:26,fill:`url(#${big?'luz':'luzverde'})`},g);
+  mk('circle',{r:big?13:9,fill:runa.cor,stroke:'#1a1422','stroke-width':3},g);
+  mk('circle',{r:big?5:3.5,fill:'#fffbe8'},g);
+  projeteis.push({g,x:o.x,y:o.y,tx:d.x,ty:d.y-(big?20:30),c,runa,tiles:areaTiles(runa,ti,tj),rastro:0});
 }
 function atingir(p){
-  const {c,runa,alvo}=p;
-  if(runa.tipo==='alvo'){dano(alvo,Math.round(rand(...runa.dano)),c);faisca(peito(alvo),runa.cor);}
-  else{explosao(alvo.x,alvo.y,runa.raio);for(const a of atores)if(a!==c&&a.vivo&&dist(a,alvo)<=runa.raio)dano(a,Math.round(rand(...runa.dano)),c);}
+  const {c,runa,tiles}=p;
+  for(const [ti,tj] of tiles){const q=centro(ti,tj);runa.forma==='um'?faisca({x:q.x,y:q.y-30},runa.cor):chama(q.x,q.y,runa.cor);}
+  const alvos=atingidos(tiles,c);
+  if(!alvos.length&&runa.forma==='um'&&c===jogador)aviso('Errou: ninguém naquele ponto');
+  for(const a of alvos)dano(a,Math.round(rand(...runa.dano)),c);
 }
+function chama(x,y,cor){const g=mk('g',{transform:`translate(${x} ${y})`},efx);
+  mk('rect',{x:-TW/2+3,y:-TH/2+2,width:TW-6,height:TH-4,rx:8,fill:cor,opacity:0.45},g);
+  for(let k=0;k<3;k++){const fx=rand(-22,22),h=rand(34,60);
+    mk('path',{d:`M${fx-9},0 C${fx-11},${-h*0.5} ${fx-2},${-h*0.7} ${fx},${-h} C${fx+3},${-h*0.6} ${fx+11},${-h*0.45} ${fx+9},0 Z`,fill:k%2?'#ffd98a':cor,stroke:'#1a1422','stroke-width':2.2},g);}
+  mk('circle',{r:40,cy:-20,fill:'url(#luz)'},g);
+  efeitos.push({g,t0:agora(),dur:0.6,escala:true});}
 function dano(a,v,de){
   if(!a.vivo)return; a.hp-=v; numero(a,'-'+v,'#ff6a5a');
   if(a!==jogador&&de)a.aggro=de;
@@ -2601,7 +2613,6 @@ function dano(a,v,de){
 function curar(a,v){a.hp=Math.min(a.hpMax,a.hp+v);numero(a,'+'+v,'#7fe0a0');}
 function morrer(a){
   a.vivo=false;a.morto=agora();a.aggro=null;ocupar(a);a.el.style.opacity=0.35;a.el.style.transition='opacity .6s';
-  if(jogador.alvo===a)jogador.alvo=null;
   for(const o of atores)if(o.aggro===a)o.aggro=null;
   if(a===jogador){$('.morte').hidden=false;}
 }
@@ -2624,8 +2635,8 @@ function brilhoCura(a){const g=mk('g',{},efx);for(let i=0;i<12;i++)mk('circle',{
   mk('ellipse',{cx:a.x,cy:a.y,rx:70,ry:20,fill:'none',stroke:'#7fe0ff','stroke-width':5},g);efeitos.push({g,t0:agora(),dur:0.8,sobe:true,y0:0});}
 let efeitos=[];
 function atualizarEfeitos(dt,t){
-  for(const p of projeteis){const alvo=p.alvo.vivo?peito(p.alvo):{x:p.x,y:p.y},dx=alvo.x-p.x,dy=alvo.y-p.y,d=Math.hypot(dx,dy),v=1050*dt;
-    if(d<=v+8||!p.alvo.vivo){p.feito=true;p.g.remove();if(p.alvo.vivo)atingir(p);continue;}
+  for(const p of projeteis){const dx=p.tx-p.x,dy=p.ty-p.y,d=Math.hypot(dx,dy),v=1050*dt;
+    if(d<=v+8){p.feito=true;p.g.remove();atingir(p);continue;}
     p.x+=dx/d*v;p.y+=dy/d*v;p.g.setAttribute('transform',`translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})`);
     p.rastro+=dt;if(p.rastro>0.03){p.rastro=0;const r=mk('circle',{cx:p.x,cy:p.y,r:7,fill:p.runa.cor,opacity:0.6},efx);efeitos.push({g:r,t0:t,dur:0.25});}}
   projeteis=projeteis.filter(p=>!p.feito);
@@ -2658,8 +2669,9 @@ function ia(n,dt,t){
       if(d>430)mover(n,dx/m*220*dt,dy/m*220*0.72*dt);else if(d<230)mover(n,-dx/m*180*dt,-dy/m*180*0.72*dt);
       n.dir=alvo.x>n.x?1:-1;
       if(t>n.proxAtaque){n.proxAtaque=t+rand(1.8,2.6);
-        if(n.hp<n.hpMax*0.4&&n.mp>=RUNAS[2].mana)usarRuna(n,RUNAS[2],null,true);
-        else usarRuna(n,Math.random()<0.3?RUNAS[1]:RUNAS[0],alvo,true);}
+        const r=Math.random();
+        if(n.hp<n.hpMax*0.4&&n.mp>=RUNAS[3].mana)usarRuna(n,RUNAS[3],null,true);
+        else usarRuna(n,r<0.5?RUNAS[0]:r<0.75?RUNAS[1]:RUNAS[2],{x:alvo.x,y:alvo.y},true);}
     }else if(jogador.vivo&&Math.hypot(n.x-jogador.x,n.y-jogador.y)<420)n.dir=jogador.x>n.x?1:-1;
   }
   n.vel=Math.hypot(n.x-ox,(n.y-oy)/0.72)/Math.max(dt,1e-4);
@@ -2674,23 +2686,19 @@ function iniciar(tipo,salvo){
   atores.forEach(a=>a.el.remove()); atores=[]; ocup.clear(); projeteis=[]; efeitos.forEach(e=>e.g.remove()); efeitos=[];
   chegou=false; $('.aviso').hidden=true; $('.morte').hidden=true;
   const pos=salvo||INICIO;
-  jogador=criarAtor(tipo,pos.x,pos.y,1,'jogador'); jogador.alvo=null;
+  jogador=criarAtor(tipo,pos.x,pos.y,1,'jogador');
   for(const k of Object.keys(PERS)) if(k!==tipo){const [x,y,d]=LUGARES[k];const n=criarAtor(k,x,y,d,k==='cachorro'?'monstro':'pvp');n.fala=FALAS[k]||'';}
   if(tipo==='cachorro'){const [x,y,d]=LUGARES.cachorro;}
   document.querySelectorAll('.escolha button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.p===tipo));
   atual=tipo; regiaoAtual=''; cam.x=jogador.x; cam.y=jogador.y; desenharGrade();
 }
-const inimigos=()=>atores.filter(a=>a!==jogador&&a.vivo);
-function proximoAlvo(){const l=inimigos().filter(a=>dist(a,jogador)<900).sort((a,b)=>dist(a,jogador)-dist(b,jogador));
-  if(!l.length){jogador.alvo=null;return;}const i=l.indexOf(jogador.alvo);jogador.alvo=l[(i+1)%l.length];}
 
 // ================= entrada
-const teclas=new Set(); let destino=null, joy=null, mostrarGrade=false;
+const teclas=new Set(); let destino=null, joy=null, mostrarGrade=false, mira=null, ponteiro=null;
 addEventListener('keydown',e=>{const k=e.key.toLowerCase();
   if(['arrowup','arrowdown','arrowleft','arrowright','w','a','s','d','shift'].includes(k)){teclas.add(k);destino=null;e.preventDefault();}
-  const r=RUNAS.find(r=>r.tecla===k);if(r){usarRuna(jogador,r,jogador.alvo);e.preventDefault();}
-  if(k==='tab'){proximoAlvo();e.preventDefault();}
-  if(k==='escape')jogador.alvo=null;
+  const r=RUNAS.find(r=>r.tecla===k);if(r){escolherRuna(r);e.preventDefault();}
+  if(k==='escape')mira=null;
   if(k==='g'){mostrarGrade=!mostrarGrade;desenharGrade();}
 });
 addEventListener('keyup',e=>teclas.delete(e.key.toLowerCase()));
@@ -2699,17 +2707,17 @@ const joyEl=$('.joy');
 jogo.addEventListener('pointerdown',e=>{
   if(e.target.closest('button'))return;
   jogo.focus();
-  const at=e.target.closest&&e.target.closest('[data-ator]');
-  if(at){const a=atores.find(a=>a.id===+at.dataset.ator);if(a&&a!==jogador&&a.vivo){jogador.alvo=a;return;}}
-  if(e.pointerType==='mouse'){destino=telaParaMundo(e.clientX,e.clientY);return;}
+  if(mira){if(e.button===2){mira=null;return;}const pt=telaParaMundo(e.clientX,e.clientY);ponteiro=pt;if(usarRuna(jogador,mira,pt))mira=null;return;}
+  if(e.pointerType==='mouse'){if(e.button===0)destino=telaParaMundo(e.clientX,e.clientY);return;}
   joy={id:e.pointerId,x0:e.clientX,y0:e.clientY,dx:0,dy:0};joyEl.hidden=false;joyEl.style.left=e.clientX+'px';joyEl.style.top=e.clientY+'px';joyEl.firstElementChild.style.transform='';
   jogo.setPointerCapture(e.pointerId);});
-jogo.addEventListener('pointermove',e=>{if(!joy||e.pointerId!==joy.id)return;let dx=e.clientX-joy.x0,dy=e.clientY-joy.y0;const d=Math.hypot(dx,dy),m=50;if(d>m){dx*=m/d;dy*=m/d;}
+jogo.addEventListener('contextmenu',e=>{e.preventDefault();mira=null;});
+function escolherRuna(r){if(!r.forma){usarRuna(jogador,r,null);mira=null;return;}mira=mira===r?null:r;}
+jogo.addEventListener('pointermove',e=>{if(e.pointerType==='mouse'||mira)ponteiro=telaParaMundo(e.clientX,e.clientY);if(!joy||e.pointerId!==joy.id)return;let dx=e.clientX-joy.x0,dy=e.clientY-joy.y0;const d=Math.hypot(dx,dy),m=50;if(d>m){dx*=m/d;dy*=m/d;}
   joy.dx=dx/m;joy.dy=dy/m;joyEl.firstElementChild.style.transform=`translate(${dx}px,${dy}px)`;});
 const soltar=e=>{if(joy&&e.pointerId===joy.id){joy=null;joyEl.hidden=true;}};
 jogo.addEventListener('pointerup',soltar);jogo.addEventListener('pointercancel',soltar);
-document.querySelectorAll('.runa').forEach(b=>b.addEventListener('click',()=>{usarRuna(jogador,RUNAS[+b.dataset.r],jogador.alvo);jogo.focus();}));
-$('#btn-alvo').addEventListener('click',()=>{proximoAlvo();jogo.focus();});
+document.querySelectorAll('.runa').forEach(b=>b.addEventListener('click',()=>{escolherRuna(RUNAS[+b.dataset.r]);jogo.focus();}));
 $('#btn-grade').addEventListener('click',()=>{mostrarGrade=!mostrarGrade;desenharGrade();jogo.focus();});
 
 // ================= grade (debug)
@@ -2745,13 +2753,16 @@ function hud(t){
   $('#mp i').style.width=jogador.mp+'%';$('#mp span').textContent=`${Math.floor(jogador.mp)} / 100`;
   const ex=Math.max(0,jogador.exausto-t);
   document.querySelectorAll('.runa').forEach(b=>{const r=RUNAS[+b.dataset.r];b.style.setProperty('--cd',(ex/EXAUSTO*100).toFixed(0)+'%');
-    b.classList.toggle('sem',jogador.mp<r.mana);
-    b.classList.toggle('longe',r.tipo!=='proprio'&&(!jogador.alvo||dist(jogador,jogador.alvo)>r.alcance));});
-  const a=jogador.alvo, painel=$('.alvo');
-  if(a&&a.vivo){painel.hidden=false;$('.alvo b').textContent=a.rotulo.textContent;$('.alvo i').style.width=(100*a.hp/a.hpMax)+'%';
-    alcanceEl.setAttribute('opacity',0.7);alcanceEl.setAttribute('cx',jogador.x);alcanceEl.setAttribute('cy',jogador.y);
-    const ok=dist(jogador,a)<=RUNAS[0].alcance&&visao(jogador,a);alcanceEl.setAttribute('stroke',ok?'#8be04a':'#e8505b');}
-  else{painel.hidden=true;alcanceEl.setAttribute('opacity',0);}
+    b.classList.toggle('sem',jogador.mp<r.mana);b.setAttribute('aria-pressed',mira===r);});
+  const miraEl=$('#mira'), dicaMira=$('.mirando');
+  if(mira&&jogador.vivo){
+    alcanceEl.setAttribute('opacity',0.6);alcanceEl.setAttribute('cx',jogador.x);alcanceEl.setAttribute('cy',jogador.y);
+    alcanceEl.setAttribute('rx',mira.alcance);alcanceEl.setAttribute('ry',mira.alcance*0.72);alcanceEl.setAttribute('stroke',mira.cor);
+    dicaMira.hidden=false;dicaMira.querySelector('b').textContent=mira.nome;jogo.style.cursor='cell';
+    if(ponteiro){const [ti,tj]=tileDe(ponteiro.x,ponteiro.y),erro=validar(jogador,mira,ti,tj),cor=erro?'#e8505b':mira.cor;let d='';
+      for(const [i,j] of areaTiles(mira,ti,tj))d+=`M${i*TW+2},${FACH+j*TH+2}h${TW-4}v${TH-4}h${-(TW-4)}z`;
+      miraEl.innerHTML=`<path d="${d}" fill="${cor}" fill-opacity="0.32" stroke="${cor}" stroke-width="3"/>`;}
+  }else{alcanceEl.setAttribute('opacity',0);miraEl.innerHTML='';dicaMira.hidden=true;jogo.style.cursor='crosshair';}
   let html='';
   for(const n of atores){if(n===jogador||!n.vivo||n.aggro||!n.fala)continue;const d=Math.hypot(n.x-jogador.x,(n.y-jogador.y)*1.4);
     if(d<230){const w=Math.max(170,n.fala.length*8.6+28),h=46,top=n.y-n.altura-96,x=n.x-w/2;
