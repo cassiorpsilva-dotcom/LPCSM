@@ -108,7 +108,8 @@ def pivots(J):
             "braco_sup_tras": J["sh_b"], "antebraco_tras": J["el_b"], "mao_tras": J["wr_b"],
             "braco_sup_frente": J["sh_f"], "antebraco_frente": J["el_f"], "mao_frente": J["wr_f"],
             "coxa_tras": J["hip_b"], "canela_tras": J["kn_b"], "pe_tras": J["an_b"],
-            "coxa_frente": J["hip_f"], "canela_frente": J["kn_f"], "pe_frente": J["an_f"], "arma": J["grip"]}
+            "coxa_frente": J["hip_f"], "canela_frente": J["kn_f"], "pe_frente": J["an_f"], "arma": J["grip"],
+            **({"arma_tras": J["grip_b"]} if "grip_b" in J else {})}
 
 def montar(g, J, ordem, comentario):
     piv = pivots(J)
@@ -154,7 +155,7 @@ def brilho(c, s, P):
     return a
 
 # ================================================================== NECROMANTE
-PN = dict(PU="#6a4c8c", PUD="#46306a", PUDD="#36245a", PUL="#9478b8", IN="#140f1c",
+PN = dict(PU="#5e3f7e", PUD="#3e2860", PUDD="#2c1c48", PUL="#8a6cb0", IN="#120c1a", TEAL="#3fb3a5", GOLDD="#9a7a26",
           BONE="#e6e2c6", BONED="#b9b493", BONEF="#c9c4a4", BONEFD="#9d987a", LEA="#6e4e2e", LEAD="#4e3620",
           GOLD="#c9a23a", WOOD="#6e4a2c", WOODD="#4a3020", GLOW="#8be04a", HALO1="#c4f39a", HALO2="#eaffd6",
           SKG="#b8e48a", SKGD="#86b85c", EYE="#0f1a0c")
@@ -190,118 +191,203 @@ def punho(G, wr, P, cor, sombra, costas=False):
         m += ln(loc(G, "M-3,-2 L8,-2 M-3,2 L8,2"), OL, IW) + tube(loc(G, "M-6,-5 L1,-9"), 2.4, cor)
     return m
 
+JN_LADO = dict(J_LADO, grip_b=(97, 170))
+JN_COSTAS = dict(J_COSTAS, grip_b=(92, 172))
+ORDEM_NECRO_LADO = ["arma_tras", "braco_sup_tras", "antebraco_tras", "mao_tras"] + ORDEM_LADO[3:]
+ORDEM_NECRO_COSTAS = [k for k in ORDEM_COSTAS if k != "mao_tras"]
+ORDEM_NECRO_COSTAS.insert(ORDEM_NECRO_COSTAS.index("arma"), "mao_tras")
+ORDEM_NECRO_COSTAS.insert(ORDEM_NECRO_COSTAS.index("mao_tras"), "arma_tras")
+
+def rim(d, P, w=2.0):
+    return ln(d, P["TEAL"], w)
+
+def punho_osso(G, wr, P, cor, sombra, costas=False, s=1.15):
+    """mão esquelética fechada em volta de um cajado vertical que passa por G"""
+    if costas:
+        m = seg(wr, (G[0], G[1] - 5 * s), 2.6, 2.4, cor, sombra)
+        m += part(loc(G, "M-8,-6 L8,-6 L9,4 L6,9 L-6,9 L-9,4 Z", s), cor, loc(G, "M-9,3 L9,3 L9,4 L6,9 L-6,9 L-9,4 Z", s), sombra, swd=IW + 0.8)
+        m += ln(loc(G, "M-4.5,-5 L-4.5,7 M0,-5 L0,8 M4.5,-5 L4.5,7", s), OL, IW)
+        m += ln(loc(G, "M-8,-1 L8,-1", s), sombra, IW)
+        return m
+    m = seg(wr, (G[0] - 8 * s, G[1]), 2.6, 2.4, cor, sombra)
+    m += part(loc(G, "M-9,-6 L-3,-9 L5,-8.5 L10,-5 L10.5,5 L6,9 L-4,8.5 L-9,5 Z", s), cor,
+              loc(G, "M-9,2 L10.5,2 L10.5,5 L6,9 L-4,8.5 L-9,5 Z", s), sombra, swd=IW + 0.8)
+    m += ln(loc(G, "M-3,-4 L10,-4 M-3,0 L10.5,0 M-3,4 L10,4", s), OL, IW)
+    m += circ(G[0] + 10 * s, G[1] - 4 * s, 1.6 * s, cor, True) + circ(G[0] + 10.5 * s, G[1], 1.6 * s, cor, True) + circ(G[0] + 10 * s, G[1] + 4 * s, 1.6 * s, cor, True)
+    m += tube(loc(G, "M-7,-6 L1,-11", s), 2.6, cor)
+    return m
+
+def caveira_perfil(c, s, cor, sombra, P, brilho_olho=False):
+    L = lambda d: loc(c, d, s)
+    o = part(L("M-11,-5 C-10,-14 0,-17 8,-14 C13,-11 14,-4 13,1 L12,4 L13,7 L9,8 L8,12 L-4,12 C-9,9 -12,2 -11,-5 Z"), cor,
+             L("M-11,-5 C-12,2 -9,9 -4,12 L-1,12 C-5,7 -7,0 -6,-6 C-6,-10 -4,-13 -1,-15 C-6,-14 -10,-10 -11,-5 Z"), sombra, swd=IW + 0.6)
+    o += part(L("M0,-5 L10,-3.5 C11,0 9,3 5.5,3 C2,3 0,1 0,-2 Z"), P["EYE"], swd=IW)
+    if brilho_olho:
+        o += circ(c[0] + 5.5 * s, c[1] - 0.5 * s, 1.8 * s, P["GLOW"]) + circ(c[0] + 5.5 * s, c[1] - 0.5 * s, 0.7 * s, P["HALO2"])
+    o += ln(L("M-1.5,-7.5 L11,-5"), OL, 2.2 * s)
+    o += part(L("M12,1.5 L14.5,5 L11,5 Z"), P["EYE"], swd=IW * 0.8)
+    o += ln(L("M0,8.5 L0,12 M3,8.3 L3,11.8 M6,8 L6,11.5"), OL, IW * 0.9)
+    return o
+
+def cajado_necro(x, top, P, sk_s, brilho_on, bottom=238):
+    a = cajado(x, top, P, bottom)
+    a += part(poly([(x - 5.5, top + 3), (x + 5.5, top + 3), (x + 5.5, top + 9), (x - 5.5, top + 9)]), P["LEA"],
+              poly([(x - 5.5, top + 7), (x + 5.5, top + 7), (x + 5.5, top + 9), (x - 5.5, top + 9)]), P["LEAD"], swd=IW + 0.4)
+    a += part(poly([(x - 4.5, top + 9), (x + 4.5, top + 9), (x + 4.5, top + 14), (x - 4.5, top + 14)]), P["LEA"], swd=IW + 0.4)
+    a += ln(f"M{fmt(x-4)},{fmt(top+11.5)} L{fmt(x+4)},{fmt(top+11.5)}", P["LEAD"], IW)
+    sk = (x + 1, top - 10 * sk_s)
+    if brilho_on:
+        a += brilho(sk, sk_s, P)
+        a += caveira_perfil(sk, sk_s, P["SKG"], P["SKGD"], P, True)
+    else:
+        a += caveira_perfil(sk, sk_s, P["BONE"], P["BONED"], P)
+    return a
+
+def manga_longa(el, wr, cor, sombra, P, sinal=1, w=10):
+    F, L = frame(el, wr)
+    V = lambda u, v: F(u, v * sinal)
+    pts = [(0, -w), (L * 0.5, -w - 1), (L + 2, -w - 3), (L - 1, -w + 2), (L + 3, -4), (L, 1), (L + 4, 6), (L, 10), (L + 3, 16),
+           (L - 3, 14), (L - 2, 23), (L - 7, 19), (L - 9, 31), (L - 13, 22), (L * 0.3, 20), (0, w)]
+    sh = [(0, 3), (L * 0.5, 5), (L, 10), (L + 3, 16), (L - 3, 14), (L - 2, 23), (L - 7, 19), (L - 9, 31), (L - 13, 22), (L * 0.3, 20), (0, w)]
+    o = part(poly([V(u, v) for u, v in pts]), cor, poly([V(u, v) for u, v in sh]), sombra)
+    o += rim(poly([V(0, -w + 1), V(L * 0.5, -w), V(L + 1, -w - 1.5)])[:-2], P, 1.8)
+    return o
+
+def pernas_osso2(J, g, P, costas=False):
+    for side, far in (("tras", True), ("frente", False)):
+        B, BD = (P["BONEF"], P["BONEFD"]) if far else (P["BONE"], P["BONED"])
+        h, k, a = (J["hip_b"], J["kn_b"], J["an_b"]) if far else (J["hip_f"], J["kn_f"], J["an_f"])
+        g["coxa_" + side] = seg(h, k, 4.4, 3.4, B, BD) + knob((k[0], k[1] - 3), 4, B)
+        F, L = frame(k, a)
+        fib = poly([F(4, -3.6), F(L - 3, -2.6), F(L - 3, -1.2), F(4, -2.2)])
+        g["canela_" + side] = (part(fib, BD, swd=IW) + seg(k, a, 3.4, 2.6, B, BD) + knob(k, 5.2, B)
+                               + part(f"M{fmt(k[0]+1)},{fmt(k[1]-3)} C{fmt(k[0]+5)},{fmt(k[1]-3)} {fmt(k[0]+5)},{fmt(k[1]+3)} {fmt(k[0]+1)},{fmt(k[1]+3)} Z", BD, stroke=False))
+        a2 = (a[0], 232)
+        if costas:
+            g["pe_" + side] = part(loc(a2, "M-6,-3 L6,-3 C7,1 8,5 8,8 L-8,8 C-8,5 -7,1 -6,-3 Z"), B, loc(a2, "M-8,5 L8,5 L8,8 L-8,8 Z"), BD) + ln(loc(a2, "M-3,3 L-3,8 M3,3 L3,8"), OL, IW)
+        else:
+            g["pe_" + side] = (part(loc(a2, "M-6,-3 L4,-3 C10,-1 17,2 22,4.5 L25,8 L-7,8 C-8,4 -7,0 -6,-3 Z"), B, loc(a2, "M-7,4.5 L22,5 L25,8 L-7,8 Z"), BD)
+                               + ln(loc(a2, "M8,1 L12,8 M14,2.5 L18,8 M19,4 L22,8"), OL, IW)
+                               + part(loc(a2, "M23,5 L29,8.3 L23,8.3 Z"), OL, stroke=False) + part(loc(a2, "M-7,1 C-7,-3 -2,-4 -1,0 Z"), B, swd=IW))
+
 def necro_lado():
-    P, J = PN, J_LADO
+    P, J = PN, JN_LADO
     g = {}
-    hx, hy, hs = 144, 94, 0.8
+    hx, hy, hs = 146, 90, 0.88
     H = lambda d: loc((hx, hy), d, hs)
-    c = part(H("M-30,-4 C-34,-18 -40,-28 -50,-34 C-36,-36 -20,-42 6,-42 C22,-42 34,-30 36,-12 C38,4 34,18 24,28 L-4,34 C-22,30 -32,14 -30,-4 Z"), P["PU"],
-             H("M-30,-4 C-34,-18 -40,-28 -50,-34 C-40,-30 -28,-24 -20,-12 C-14,0 -12,18 -4,34 C-22,30 -32,14 -30,-4 Z"), P["PUD"])
-    c += part(H("M-10,-40 C6,-43 22,-38 30,-26 C20,-33 6,-37 -10,-40 Z"), P["PUL"], stroke=False)
-    c += part(H("M8,-30 C24,-28 34,-14 34,0 C34,14 28,24 20,30 L2,32 C-2,14 -2,-14 8,-30 Z"), P["IN"], swd=IW)
-    c += part(H("M6,-22 C20,-24 31,-12 31,0 C31,4 30,7 28,9 L29,14 L24,16 L22,20 L6,22 C0,16 -1,4 0,-8 C1,-15 3,-20 6,-22 Z"), P["BONE"],
-              H("M0,-8 C1,-2 3,6 9,12 L22,13 L22,20 L6,22 C0,16 -1,4 0,-8 Z"), P["BONED"], swd=IW + 0.6)
-    c += part(H("M8,21 L24,18 C26,23 24,27 18,28 L10,28 C8,26 7,23 8,21 Z"), P["BONE"], H("M8,24 L24,22 C24,25 22,27 18,28 L10,28 C8,27 8,25 8,24 Z"), P["BONED"], swd=IW)
-    c += ln(H("M12,20.5 L12,25 M15.5,20 L15.5,24.5 M19,19.5 L19,24 M22,19 L22,23"), OL, IW)
-    c += part(H("M13,-6 L27,-4 L26,3 C22,6 17,5 15,2 Z"), P["EYE"], swd=IW)
-    c += circ(hx + 21.5 * hs, hy - 0.5 * hs, 2.6 * hs, P["GLOW"])
-    c += ln(H("M11,-9 L29,-5.5"), OL, SW + 0.5)
-    c += part(H("M28,4 L31.5,9.5 L27,9.5 Z"), P["EYE"], swd=IW)
-    c += ln(H("M15,9 C19,11 23,11 27,10"), OL, IW)
-    c += ln(H("M8,-30 C-2,-14 -2,14 2,32"), P["PUL"], SW)
+    c = part(H("M-32,-2 C-36,-18 -42,-30 -54,-36 C-38,-38 -20,-44 6,-44 C24,-44 38,-30 40,-10 C42,6 38,20 28,30 L-4,36 C-22,32 -34,16 -32,-2 Z"), P["PU"],
+             H("M-32,-2 C-36,-18 -42,-30 -54,-36 C-42,-31 -30,-24 -22,-12 C-16,0 -14,20 -4,36 C-22,32 -34,16 -32,-2 Z"), P["PUD"])
+    c += part(H("M-10,-42 C8,-45 26,-39 34,-26 C22,-34 8,-39 -10,-42 Z"), P["PUL"], stroke=False)
+    c += rim(H("M12,-42 C26,-40 37,-28 39,-12"), P, 2.2)
+    c += ln(H("M-18,-30 C-14,-14 -12,8 -8,30"), P["PUDD"], IW + 0.6)
+    c += part(H("M6,-32 C24,-30 37,-16 37,0 C37,16 31,26 23,32 L2,34 C-4,14 -4,-14 6,-32 Z"), P["IN"], swd=IW)
+    c += part(H("M4,-24 C20,-27 33,-15 33,-2 C33,2 32,5 30,7 L31,12 L10,13.5 L4,14 C-1,8 -3,-2 -2,-10 C-1,-17 1,-21 4,-24 Z"), P["BONE"],
+              H("M-2,-10 C-1,-2 2,6 8,13.6 L4,14 C-1,8 -3,-2 -2,-10 Z"), P["BONED"], swd=IW + 0.6)
+    c += part(H("M12,-9 L30,-5.5 C31,-0.5 28,4.5 22.5,5 C17,5 13,2 12,-3 Z"), P["EYE"], swd=IW)
+    c += circ(hx + 22 * hs, hy - 0.5 * hs, 3.2 * hs, P["GLOW"]) + circ(hx + 22 * hs, hy - 0.5 * hs, 1.3 * hs, P["HALO2"])
+    c += ln(H("M9,-13 L32,-7"), OL, SW + 1.2)
+    c += part(H("M30.5,2.5 L34.5,9 L29.5,9 Z"), P["EYE"], swd=IW)
+    c += ln(H("M14,8 C19,10.5 24,10.5 28.5,8.5"), P["BONED"], 1.8)
+    c += part(H("M9,13 L31.5,12 L31.5,17.2 L9,18 Z"), P["BONE"], swd=IW + 0.2)
+    c += ln(H("M13,13 L13,17.8 M17,12.8 L17,17.6 M21,12.6 L21,17.5 M25,12.4 L25,17.4 M28.5,12.2 L28.5,17.3"), OL, IW)
+    c += part(H("M7,18.5 L31.5,17.8 L31.5,22 C30.5,26 26,28.5 20,28.5 L11,28.5 C7.5,26.5 6,22.5 7,18.5 Z"), P["BONE"],
+              H("M7,23.5 L31,22.5 C30,26 26,28.5 20,28.5 L11,28.5 C8,27 7,25.5 7,23.5 Z"), P["BONED"], swd=IW + 0.2)
+    c += ln(H("M13,18.4 L13,22.5 M17,18.3 L17,22.5 M21,18.2 L21,22.4 M25,18.1 L25,22.3 M28.5,18 L28.5,22"), OL, IW)
+    c += rim(H("M6,-32 C-4,-14 -4,14 2,34"), P, 2.2)
     g["cabeca"] = c
-    t = part("M120,118 C132,108 150,112 155,126 C159,140 155,156 149,168 L117,170 C113,152 113,132 120,118 Z", P["PU"],
-             "M120,118 C124,132 126,150 128,169 L117,170 C113,152 113,132 120,118 Z", P["PUD"])
-    t += part("M143,124 C151,124 156,133 156,143 C155,151 151,157 145,160 L141,160 C139,148 139,134 143,124 Z", P["IN"], swd=IW)
-    for y in (130, 137, 144, 151):
-        t += tube(f"M141,{y} C146,{y-1} 151,{y+1} 154.5,{y+3}", 2.4, P["BONE"])
-    t += ln("M142,126 L142,158", P["BONE"], 2.6)
-    t += part("M110,120 C122,106 150,106 162,120 L160,134 L154,128 L150,141 L144,131 L138,143 L132,131 L126,142 L120,129 L114,137 L110,130 Z", P["PU"],
-              "M110,120 C116,112 124,108 132,107 C128,114 128,124 132,131 L126,142 L120,129 L114,137 L110,130 Z", P["PUD"])
-    t += part("M124,110 C136,105 150,107 158,114 C148,111 136,110 124,110 Z", P["PUL"], stroke=False)
-    t += part("M116,160 L151,158 L152,167 L116,169 Z", P["LEA"], "M116,165 L152,163.5 L152,167 L116,169 Z", P["LEAD"])
-    t += part("M145.5,157.5 L154,157 L154,163.5 L151.5,167 L148.5,167 L146,163.5 Z", P["GOLD"], swd=IW + 0.4)
-    t += circ(148.6, 161, 1, OL) + circ(151.6, 161, 1, OL)
+    t = part("M108,116 C118,108 128,108 132,116 L130,168 L116,170 C110,152 108,132 108,116 Z", P["PU"],
+             "M108,116 C114,112 118,111 120,112 C118,130 118,150 120,170 L116,170 C110,152 108,132 108,116 Z", P["PUD"])
+    t += part("M128,118 C142,114 156,121 158,135 C160,147 156,157 148,161 L128,161 Z", P["IN"], swd=IW)
+    for y in range(115, 162, 6):
+        t += part(f"M127,{y} L134,{y} L134.5,{y+4.6} L126.5,{y+4.6} Z", P["BONE"], f"M131,{y} L134,{y} L134.5,{y+4.6} L131,{y+4.6} Z", P["BONED"], swd=IW)
+    for i, y in enumerate((123, 130, 137, 144, 151)):
+        t += tube(f"M133,{y} C141,{y-3} {150-i},{y} {154-i*1.5},{y+7}", 3.2, P["BONE"])
+    t += tube("M151,124 L152,147", 3.6, P["BONE"])
+    t += part("M102,118 C114,102 148,100 162,114 L160,128 L154,123 L150,134 L144,126 L138,137 L132,127 L126,136 L120,125 L114,134 L108,124 L103,130 Z", P["PU"],
+              "M102,118 C108,110 116,105 124,103 C120,112 120,122 126,136 L120,125 L114,134 L108,124 L103,130 Z", P["PUD"])
+    t += part("M124,105 C136,100 150,102 158,110 C148,106 136,105 124,105 Z", P["PUL"], stroke=False)
+    t += rim("M118,106 C130,101 146,102 159,112", P, 2)
+    t += part("M106,161 L119,161 L120,178 C116,180 110,180 107,178 Z", P["LEA"], "M106,170 L120,170 L120,178 C116,180 110,180 107,178 Z", P["LEAD"])
+    t += part("M105,160 L120,160 L120,166 L105,166 Z", P["LEAD"], swd=IW + 0.4) + circ(112.5, 165, 1.4, P["GOLD"], True)
+    t += part("M114,158 L154,156 L155,168 L114,170 Z", P["LEA"], "M114,164.5 L155,163 L155,168 L114,170 Z", P["LEAD"])
+    t += ln("M118,160 L150,158.4", P["LEAD"], IW)
+    t += part("M146.5,155.5 L158,155.5 L158,163.5 L155,168.5 L149.5,168.5 L146.5,163.5 Z", P["GOLD"], "M146.5,163.5 L158,163.5 L155,168.5 L149.5,168.5 Z", P["GOLDD"], swd=IW + 0.4)
+    t += circ(150, 160, 1.6, OL) + circ(154.6, 160, 1.6, OL) + ln("M150,166 L150,168 M152.3,166 L152.3,168.5 M154.6,166 L154.6,168", OL, IW * 0.8)
     g["tronco"] = t
-    q = part("M116,166 L151,164 C156,180 160,198 162,214 L156,210 L151,220 L145,212 L139,222 L132,212 L126,224 L119,214 L112,228 L106,215 L99,224 C101,204 108,184 116,166 Z", P["PU"],
-             "M116,166 C108,184 101,204 99,224 L106,215 L112,228 L119,214 C119,198 121,182 126,166 Z", P["PUD"])
-    q += ln("M134,170 C134,186 133,200 132,210", P["PUD"], IW + 0.6) + ln("M150,168 C154,182 157,198 159,210", P["PUL"], IW + 0.4)
+    q = part("M120,166 L146,164 C148,170 146,176 140,180 L124,181 C120,176 119,171 120,166 Z", P["BONE"],
+             "M120,166 C119,171 120,176 124,181 L130,181 C126,176 125,171 126,166 Z", P["BONED"], swd=IW + 0.4)
+    q += part("M110,166 L127,166 C127,186 125,204 123,222 L117,215 L111,226 L105,216 L98,224 C100,204 104,184 110,166 Z", P["PU"],
+              "M110,166 C104,184 100,204 98,224 L105,216 L111,226 L117,215 C116,198 117,182 119,166 Z", P["PUD"])
+    q += rim("M109,170 C104,186 101,202 99,220", P, 1.8)
+    q += part("M140,166 L157,165 C159,182 161,198 161,215 L156,209 L151,219 L146,210 L140,216 C140,198 140,182 140,166 Z", P["PU"],
+              "M140,166 L145,166 C145,184 146,200 146,210 L140,216 C140,198 140,182 140,166 Z", P["PUD"])
+    q += rim("M157,166 C159,182 160.5,198 160.5,212", P, 1.8) + ln("M151,170 C152,186 152,198 151,214", P["PUD"], IW + 0.4)
     g["quadril"] = q
-    pernas_osso(J, g, P)
-    mb = braco_manga(J, "b", P["PUD"], None, P["PUDD"], w=9)
-    g["braco_sup_tras"], g["antebraco_tras"] = mb["braco_sup"], mb["antebraco"]
-    g["mao_tras"] = garra(J["wr_b"], P, P["BONEF"])
-    x, top = J["grip"][0], 70
-    a = cajado(x, top, P)
-    a += part(poly([(x - 5, top + 4), (x + 5, top + 4), (x + 5, top + 11), (x - 5, top + 11)]), P["LEA"],
-              poly([(x - 5, top + 8.5), (x + 5, top + 8.5), (x + 5, top + 11), (x - 5, top + 11)]), P["LEAD"], swd=IW + 0.4)
-    a += part(poly([(x - 4, top + 11), (x - 1, top + 11), (x - 3, top + 26), (x - 6, top + 24)]), P["LEA"], swd=IW)
-    sk = (x + 2, top - 12)
-    a += brilho(sk, 1, P)
-    a += part(loc(sk, "M-10,-6 C-8,-14 6,-16 10,-6 C12,0 10,4 8,6 L8,10 L3,12 L2,16 L-6,16 C-10,12 -12,2 -10,-6 Z"), P["SKG"],
-              loc(sk, "M-10,-6 C-10,2 -8,10 -4,16 L-6,16 C-10,12 -12,2 -10,-6 Z"), P["SKGD"], swd=IW + 0.6)
-    a += part(loc(sk, "M-2,-3 L6,-2 L5,2 C2,4 -1,3 -2,1 Z"), P["EYE"], swd=IW) + circ(sk[0] + 2.5, sk[1], 1.4, P["GLOW"])
-    a += part(loc(sk, "M9,5 L11,8.5 L8,8.5 Z"), P["EYE"], swd=IW) + ln(loc(sk, "M-4,12 L-4,16 M-1,12 L-1,16 M2,12 L2,15"), OL, IW)
-    g["arma"] = a
-    mf = braco_manga(J, "f", P["PU"], None, P["PUD"], w=9)
-    g["braco_sup_frente"], g["antebraco_frente"] = mf["braco_sup"], mf["antebraco"]
-    g["mao_frente"] = punho(J["grip"], J["wr_f"], P, P["BONE"], P["BONED"])
+    pernas_osso2(J, g, P)
+    g["braco_sup_tras"] = seg(J["sh_b"], J["el_b"], 9, 9.5, P["PUD"], P["PUDD"])
+    g["antebraco_tras"] = manga_longa(J["el_b"], J["wr_b"], P["PUD"], P["PUDD"], P, sinal=-1, w=9.5)
+    g["mao_tras"] = punho_osso(J["grip_b"], J["wr_b"], P, P["BONEF"], P["BONEFD"])
+    g["arma_tras"] = cajado_necro(J["grip_b"][0], 114, P, 1.0, False)
+    g["arma"] = cajado_necro(J["grip"][0], 62, P, 1.15, True)
+    g["braco_sup_frente"] = seg(J["sh_f"], J["el_f"], 9.5, 10, P["PU"], P["PUD"]) + rim(f"M{fmt(J['sh_f'][0]-2)},{fmt(J['sh_f'][1]-9)} L{fmt(J['el_f'][0]+3)},{fmt(J['el_f'][1]-9)}", P, 1.8)
+    g["antebraco_frente"] = manga_longa(J["el_f"], J["wr_f"], P["PU"], P["PUD"], P, sinal=1, w=10)
+    g["mao_frente"] = punho_osso(J["grip"], J["wr_f"], P, P["BONE"], P["BONED"])
     return g
 
 def necro_costas():
-    P, J = PN, J_COSTAS
+    P, J = PN, JN_COSTAS
     g = {}
-    hx, hy, hs = 128, 94, 0.8
+    hx, hy, hs = 128, 92, 0.88
     H = lambda d: loc((hx, hy), d, hs)
-    c = part(H("M-32,0 C-34,-24 -20,-40 -2,-44 C2,-50 8,-56 16,-58 C12,-52 10,-46 10,-42 C24,-36 34,-22 32,0 C32,16 24,28 12,34 L-12,34 C-24,28 -32,16 -32,0 Z"), P["PU"],
-             H("M-32,0 C-34,-24 -20,-40 -2,-44 C-10,-34 -14,-18 -14,0 C-14,14 -12,26 -12,34 C-24,28 -32,16 -32,0 Z"), P["PUD"])
-    c += ln(H("M0,-40 C2,-20 2,10 0,33"), P["PUD"], SW) + ln(H("M14,-34 C20,-20 22,0 18,26"), P["PUD"], IW + 0.6)
+    c = part(H("M-34,0 C-36,-24 -22,-40 -2,-44 C2,-50 8,-56 16,-58 C12,-52 10,-46 10,-42 C26,-36 36,-22 34,0 C34,16 26,28 14,36 L-14,36 C-26,28 -34,16 -34,0 Z"), P["PU"],
+             H("M-34,0 C-36,-24 -22,-40 -2,-44 C-10,-34 -14,-18 -14,0 C-14,14 -12,26 -14,36 C-26,28 -34,16 -34,0 Z"), P["PUD"])
+    c += ln(H("M0,-40 C2,-20 2,10 0,35"), P["PUD"], SW) + ln(H("M14,-34 C20,-20 22,0 18,28"), P["PUD"], IW + 0.6)
     c += part(H("M4,-42 C16,-40 26,-32 30,-18 C24,-28 14,-36 4,-42 Z"), P["PUL"], stroke=False)
+    c += rim(H("M12,-40 C26,-34 34,-20 33,0"), P, 2.2)
     g["cabeca"] = c
     t = part("M112,118 C122,110 134,110 144,118 C150,134 148,152 146,168 L110,168 C108,152 106,134 112,118 Z", P["PU"],
              "M112,118 C118,112 124,110 128,110 C124,128 122,150 122,168 L110,168 C108,152 106,134 112,118 Z", P["PUD"])
     t += ln("M128,122 L128,160", P["PUD"], IW + 0.6)
-    t += part("M100,122 C110,106 146,106 156,122 L154,136 L148,130 L144,142 L138,132 L132,144 L126,132 L120,143 L114,131 L108,140 L104,130 L101,136 Z", P["PU"],
-              "M100,122 C106,112 116,108 126,107 C120,116 120,126 126,132 L120,143 L114,131 L108,140 L104,130 L101,136 Z", P["PUD"])
-    t += part("M118,110 C128,106 138,106 146,112 C138,109 128,109 118,110 Z", P["PUL"], stroke=False)
-    t += part("M108,159 L148,159 L148,168 L108,168 Z", P["LEA"], "M108,165 L148,165 L148,168 L108,168 Z", P["LEAD"])
-    t += part("M100,160 L109,160 L109,174 L100,174 Z", P["LEAD"], swd=IW + 0.4)
+    t += part("M98,122 C108,104 148,104 158,122 L156,136 L150,130 L146,143 L140,132 L134,145 L128,133 L122,145 L116,132 L110,143 L106,130 L100,138 Z", P["PU"],
+              "M98,122 C104,112 114,107 124,106 C118,116 118,126 122,145 L116,132 L110,143 L106,130 L100,138 Z", P["PUD"])
+    t += part("M118,109 C128,105 138,105 146,111 C138,108 128,108 118,109 Z", P["PUL"], stroke=False)
+    t += rim("M132,106 C144,107 152,113 157,122", P, 2)
+    t += part("M106,158 L150,158 L150,169 L106,169 Z", P["LEA"], "M106,165 L150,165 L150,169 L106,169 Z", P["LEAD"])
+    t += part("M144,160 L155,160 L156,177 C152,179 147,179 144,177 Z", P["LEA"], "M144,169 L156,169 L156,177 C152,179 147,179 144,177 Z", P["LEAD"])
+    t += part("M143,159 L156,159 L156,165 L143,165 Z", P["LEAD"], swd=IW + 0.4) + circ(149.5, 164, 1.4, P["GOLD"], True)
     g["tronco"] = t
-    q = part("M108,166 L148,166 C154,182 158,200 160,216 L154,211 L148,221 L142,212 L135,223 L128,213 L121,223 L114,212 L108,221 L102,211 L96,216 C98,200 102,182 108,166 Z", P["PU"],
-             "M108,166 C102,182 98,200 96,216 L102,211 L108,221 L114,212 L121,223 C120,204 120,184 122,166 Z", P["PUD"])
-    q += ln("M128,170 L128,208", P["PUD"], IW + 0.6) + ln("M140,170 C142,186 143,198 144,208", P["PUL"], IW + 0.4)
+    q = part("M106,166 L150,166 C155,182 159,200 161,218 L155,212 L149,222 L143,213 L136,224 L128,214 L120,224 L113,213 L107,222 L101,212 L95,218 C97,200 101,182 106,166 Z", P["PU"],
+             "M106,166 C101,182 97,200 95,218 L101,212 L107,222 L113,213 L120,224 C119,204 119,184 121,166 Z", P["PUD"])
+    q += ln("M128,170 L128,210", P["PUD"], IW + 0.6) + rim("M150,168 C155,184 158,200 160,214", P, 1.8)
     g["quadril"] = q
-    pernas_osso(J, g, P, costas=True)
-    mb = braco_manga(J, "b", P["PU"], None, P["PUD"], w=9, lado=False)
-    g["braco_sup_tras"] = seg(J["sh_b"], J["el_b"], 9, 9, P["PU"], P["PUD"])
-    F, L = frame(J["el_b"], J["wr_b"])
-    sl = [(0, -9), (L * 0.5, -11), (L + 3, -14), (L, -8), (L + 5, -4), (L + 1, 0), (L + 6, 4), (L + 1, 9), (L + 5, 13), (L - 3, 11), (L * 0.5, 10), (0, 9)]
-    g["antebraco_tras"] = part(poly([F(u, v) for u, v in sl]), P["PU"], poly([F(u, v) for u, v in [(0, 3), (L * 0.5, 4), (L + 1, 9), (L + 5, 13), (L - 3, 11), (L * 0.5, 10), (0, 9)]]), P["PUD"])
-    g["mao_tras"] = garra(J["wr_b"], P, P["BONE"], espelho=True)
-    g["braco_sup_frente"] = seg(J["sh_f"], J["el_f"], 9, 9, P["PU"], P["PUD"], side=-1)
-    F, L = frame(J["el_f"], J["wr_f"])
-    sl = [(0, 9), (L * 0.5, 11), (L + 3, 14), (L, 8), (L + 5, 4), (L + 1, 0), (L + 6, -4), (L + 1, -9), (L + 5, -13), (L - 3, -11), (L * 0.5, -10), (0, -9)]
-    g["antebraco_frente"] = part(poly([F(u, v) for u, v in sl]), P["PU"], poly([F(u, v) for u, v in [(0, 3), (L * 0.5, 4), (L + 1, 0), (L + 6, -4), (L + 1, -9), (L + 5, -13), (L - 3, -11), (L * 0.5, -10), (0, -9)]]), P["PUD"])
-    g["mao_frente"] = punho(J["grip"], J["wr_f"], P, P["BONE"], P["BONED"], costas=True)
-    x, top = J["grip"][0], 72
-    a = cajado(x, top, P)
-    a += part(poly([(x - 5, top + 4), (x + 5, top + 4), (x + 5, top + 11), (x - 5, top + 11)]), P["LEA"],
-              poly([(x - 5, top + 8.5), (x + 5, top + 8.5), (x + 5, top + 11), (x - 5, top + 11)]), P["LEAD"], swd=IW + 0.4)
-    sk = (x, top - 12)
-    a += brilho(sk, 1, P)
-    a += part(loc(sk, "M-8,6 L8,6 L7,15 L-7,15 Z"), P["SKGD"], swd=IW + 0.6)
-    a += part(loc(sk, "M-11,0 C-11,-9 -6,-14 0,-14 C6,-14 11,-9 11,0 C11,6 7,10 0,10 C-7,10 -11,6 -11,0 Z"), P["SKG"],
-              loc(sk, "M-11,0 C-11,-9 -6,-14 0,-14 C-4,-10 -6,-4 -6,2 C-6,6 -4,9 0,10 C-7,10 -11,6 -11,0 Z"), P["SKGD"], swd=IW + 0.6)
-    a += ln(loc(sk, "M0,-13 C-1,-6 -1,2 0,8"), P["SKGD"], IW)
-    g["arma"] = a
+    pernas_osso2(J, g, P, costas=True)
+    g["braco_sup_tras"] = seg(J["sh_b"], J["el_b"], 9.5, 10, P["PU"], P["PUD"])
+    g["antebraco_tras"] = manga_longa(J["el_b"], J["wr_b"], P["PU"], P["PUD"], P, sinal=-1, w=10)
+    g["braco_sup_frente"] = seg(J["sh_f"], J["el_f"], 9.5, 10, P["PU"], P["PUD"], side=-1)
+    g["antebraco_frente"] = manga_longa(J["el_f"], J["wr_f"], P["PU"], P["PUD"], P, sinal=1, w=10)
+    g["mao_tras"] = punho_osso(J["grip_b"], J["wr_b"], P, P["BONE"], P["BONED"], costas=True)
+    g["mao_frente"] = punho_osso(J["grip"], J["wr_f"], P, P["BONE"], P["BONED"], costas=True)
+    def costas_caveira(x, top, s, verde):
+        cor, sb = (P["SKG"], P["SKGD"]) if verde else (P["BONE"], P["BONED"])
+        sk = (x, top - 11 * s)
+        a = brilho(sk, s, P) if verde else ""
+        a += part(loc(sk, "M-8,6 L8,6 L7,14 L-7,14 Z", s), sb, swd=IW + 0.6)
+        a += part(loc(sk, "M-11,0 C-11,-9 -6,-14 0,-14 C6,-14 11,-9 11,0 C11,6 7,10 0,10 C-7,10 -11,6 -11,0 Z", s), cor,
+                  loc(sk, "M-11,0 C-11,-9 -6,-14 0,-14 C-4,-10 -6,-4 -6,2 C-6,6 -4,9 0,10 C-7,10 -11,6 -11,0 Z", s), sb, swd=IW + 0.6)
+        a += ln(loc(sk, "M0,-13 C-1,-6 -1,2 0,8", s), sb, IW)
+        return a
+    x = J["grip"][0]
+    g["arma"] = cajado(x, 76, P) + part(poly([(x - 5.5, 79), (x + 5.5, 79), (x + 5.5, 87), (x - 5.5, 87)]), P["LEA"], swd=IW + 0.4) + costas_caveira(x, 76, 1.25, True)
+    x = J["grip_b"][0]
+    g["arma_tras"] = cajado(x, 104, P) + part(poly([(x - 5.5, 107), (x + 5.5, 107), (x + 5.5, 114), (x - 5.5, 114)]), P["LEA"], swd=IW + 0.4) + costas_caveira(x, 104, 1.0, False)
     return g
 
 PERSONAGENS = {}
 
-def registrar(nome, rotulo, lado, costas):
-    PERSONAGENS[nome] = (rotulo, lado, costas)
+def registrar(nome, rotulo, lado, costas, jl=None, jc=None, ol=None, oc=None):
+    PERSONAGENS[nome] = (rotulo, lado, costas, jl or J_LADO, jc or J_COSTAS, ol or ORDEM_LADO, oc or ORDEM_COSTAS)
 
-registrar("necromante", "Necromante esqueleto", necro_lado, necro_costas)
+registrar("necromante", "Necromante esqueleto", necro_lado, necro_costas, JN_LADO, JN_COSTAS, ORDEM_NECRO_LADO, ORDEM_NECRO_COSTAS)
 
 # ================================================================== MEDUSA
 PM = dict(SK="#c98b5a", SKD="#9c6a40", SKF="#b27a4e", SKFD="#8a5c36", G="#5aa844", GD="#2f6a2c", GL="#8fd06a", GB="#2a5a26",
@@ -577,13 +663,13 @@ registrar("ninja", "Ninja", ninja_lado, ninja_costas)
 def main():
     D = sys.argv[1] if len(sys.argv) > 1 else "."
     so = sys.argv[2:]  # opcional: nomes específicos
-    for nome, (rot, fl, fc) in PERSONAGENS.items():
+    for nome, (rot, fl, fc, jl, jc, ol, oc) in PERSONAGENS.items():
         if so and nome not in so:
             continue
-        lado = montar(fl(), J_LADO, ORDEM_LADO, f"{rot} - estilo dark fantasy estilizado. Vista lateral, virado para a direita.")
+        lado = montar(fl(), jl, ol, f"{rot} - estilo dark fantasy estilizado. Vista lateral, virado para a direita.")
         open(os.path.join(D, f"{nome}_estilizado_lado_separado.svg"), "w").write(lado)
         open(os.path.join(D, f"{nome}_estilizado_lado_esquerda_separado.svg"), "w").write(espelhar(lado))
-        costas = montar(fc(), J_COSTAS, ORDEM_COSTAS, f"{rot} - estilo dark fantasy estilizado. Vista de COSTAS. "
+        costas = montar(fc(), jc, oc, f"{rot} - estilo dark fantasy estilizado. Vista de COSTAS. "
                         "Partes *_frente = lado DIREITO do personagem (segura a arma), à direita da tela.")
         open(os.path.join(D, f"{nome}_estilizado_costas_separado.svg"), "w").write(costas)
         print(nome, "ok")

@@ -41,16 +41,19 @@ const ANIMS={
    [19,{glow:1}],[20,{glow:1}]],f)}
 };
 (async()=>{
- const b=await chromium.launch();const p=await b.newPage({viewport:{width:320*S,height:256*S}});
+ const b=await chromium.launch();const p=await b.newPage({viewport:{width:345*S,height:256*S}});
  const svg=fs.readFileSync(SRC,'utf8').replace('width="256" height="256"',`width="${256*S}" height="${256*S}" style="overflow:visible"`);
  await p.setContent(`<body style="margin:0;background:#ebe7f0"><svg style="position:absolute;left:0;top:0" width="${256*S}" height="${256*S}" viewBox="0 0 256 256"><ellipse cx="132" cy="240" rx="42" ry="4.5" fill="#d3cddc"/></svg><div style="position:absolute;left:0;top:0">${svg}</div></body>`);
  for(let [name,A] of Object.entries(ANIMS)){
   if(!LISTA.includes(name)||name==='ataque_haste') continue;
   const haste=await p.evaluate(()=>document.getElementById('arma').getBBox().height>100);
+  const temArmaTras=await p.evaluate(()=>!!document.getElementById('arma_tras'));
   if(name==='ataque'&&haste) A=ANIMS.ataque_haste;
   fs.mkdirSync(`${OUT}/${name}`,{recursive:true});
   for(let f=0;f<A.n;f++){
    const P=A.pose(f);
+   if(temArmaTras){ // segundo cajado na mão de trás: braço mexe menos e o punho compensa para o cajado ficar de pé
+     P.bst=(P.bst||0)*0.35; P.abt=(P.abt||0)*0.35; P.mbt=-(P.bst+P.abt)-(P.tl||0); }
    await p.evaluate(P=>{
     const g=id=>document.getElementById(id), pv=id=>g(id).dataset.pivot.split(',').map(Number);
     const R=(a,id)=>a?`rotate(${a} ${pv(id).join(' ')})`:'';
@@ -64,6 +67,7 @@ const ANIMS={
     set('braco_sup_frente',armF.slice(0,2).join(' '));set('antebraco_frente',armF.slice(0,3).join(' '));set('mao_frente',armF.join(' '));set('arma',armF.join(' '));
     const armT=[torso,R(v('bst'),'braco_sup_tras'),R(v('abt'),'antebraco_tras'),R(v('mbt'),'mao_tras')];
     set('braco_sup_tras',armT.slice(0,2).join(' '));set('antebraco_tras',armT.slice(0,3).join(' '));set('mao_tras',armT.join(' '));
+    if(g('arma_tras')) set('arma_tras',armT.join(' '));
     for(const [s,th,sh,pe] of [['frente','cft','cnf','pef'],['tras','ctt','cnt','pet']]){
       const L=[body,R(v(th),'coxa_'+s),R(v(sh),'canela_'+s),R(v(pe),'pe_'+s)];
       set('coxa_'+s,L.slice(0,2).join(' '));set('canela_'+s,L.slice(0,3).join(' '));set('pe_'+s,L.join(' '));}
