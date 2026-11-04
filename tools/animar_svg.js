@@ -1,9 +1,11 @@
-// Gera quadros PNG de animações (parado, andando, conjurando) girando cada <g> no seu data-pivot.
-// Uso: node tools/animar_svg.js personagem_lado_separado.svg pasta_quadros
+// Gera quadros PNG de animações (parado, andando, ataque, conjurando) girando cada <g> no seu data-pivot.
+// 'ataque' vira estocada se a arma for comprida (cajado, lança) e golpe de cima para baixo se for curta (kunai, adaga).
+// Uso: node tools/animar_svg.js personagem_lado_separado.svg pasta_quadros [parado,andando,ataque]
 // Depois: python3 tools/quadros_para_gif.py pasta_quadros previews/prefixo
 const {chromium}=require('playwright');const fs=require('fs');
 const SRC=process.argv[2]||'necromante_estilizado_lado_separado.svg';
 const OUT=process.argv[3]||'previews/quadros';
+const LISTA=(process.argv[4]||'parado,andando,ataque,conjurando').split(',');
 const S=2; // escala de render (256 -> 512)
 const sin=Math.sin, PI=Math.PI;
 const ease=t=>t<0?0:t>1?1:t*t*(3-2*t);
@@ -19,6 +21,18 @@ const ANIMS={
    const F=leg(t),B=leg(t+PI);
    return{dy:-1.8*Math.abs(sin(t)),tl:3,hd:1.5*sin(2*t),cft:F.th,cnf:F.sh,pef:F.pe,ctt:B.th,cnt:B.sh,pet:B.pe,
      bst:16*sin(t),abt:8*sin(t-0.5),mbt:6*sin(t-1),bsf:-4*sin(t),abf:3*sin(t),mbf:2*sin(t),sk:2*sin(t),glow:1+0.08*sin(2*t)}}},
+ ataque_haste:{n:24,ms:55,pose:f=>keys([
+   [0,{}],
+   [6,{tl:-9,hd:-3,dy:1,bsf:48,abf:-38,mbf:66,bst:25,abt:10,mbt:6,cft:4,ctt:-4,glow:1.2}],
+   [9,{tl:12,hd:5,dy:2.5,bsf:-8,abf:-18,mbf:100,bst:-34,abt:-20,mbt:-15,cft:-22,cnf:14,pef:8,ctt:16,cnt:10,pet:-26,sk:4,glow:1.9}],
+   [14,{tl:12,hd:5,dy:2.5,bsf:-5,abf:-16,mbf:100,bst:-30,abt:-18,mbt:-12,cft:-22,cnf:14,pef:8,ctt:16,cnt:10,pet:-26,sk:4,glow:1.4}],
+   [23,{}],[24,{}]],f)},
+ ataque:{n:24,ms:55,pose:f=>keys([
+   [0,{}],
+   [6,{tl:-7,hd:-4,dy:1.5,bsf:-105,abf:-35,mbf:88,bst:28,abt:12,mbt:8,cft:4,ctt:-4,glow:1.2}],
+   [9,{tl:11,hd:5,dy:2.5,bsf:-8,abf:-18,mbf:100,bst:-34,abt:-20,mbt:-15,cft:-22,cnf:14,pef:8,ctt:16,cnt:10,pet:-26,sk:4,glow:1.8}],
+   [14,{tl:12,hd:5,dy:2.5,bsf:-4,abf:-16,mbf:104,bst:-30,abt:-18,mbt:-12,cft:-22,cnf:14,pef:8,ctt:16,cnt:10,pet:-26,sk:4,glow:1.4}],
+   [23,{}],[24,{}]],f)},
  conjurando:{n:20,ms:70,pose:f=>keys([
    [0,{glow:1}],
    [4,{bsf:12,abf:12,mbf:-6,tl:-3,hd:-3,dy:1,glow:0.9,bst:6}],
@@ -27,10 +41,13 @@ const ANIMS={
    [19,{glow:1}],[20,{glow:1}]],f)}
 };
 (async()=>{
- const b=await chromium.launch();const p=await b.newPage({viewport:{width:300*S,height:256*S}});
+ const b=await chromium.launch();const p=await b.newPage({viewport:{width:320*S,height:256*S}});
  const svg=fs.readFileSync(SRC,'utf8').replace('width="256" height="256"',`width="${256*S}" height="${256*S}" style="overflow:visible"`);
  await p.setContent(`<body style="margin:0;background:#ebe7f0"><svg style="position:absolute;left:0;top:0" width="${256*S}" height="${256*S}" viewBox="0 0 256 256"><ellipse cx="132" cy="240" rx="42" ry="4.5" fill="#d3cddc"/></svg><div style="position:absolute;left:0;top:0">${svg}</div></body>`);
- for(const [name,A] of Object.entries(ANIMS)){
+ for(let [name,A] of Object.entries(ANIMS)){
+  if(!LISTA.includes(name)||name==='ataque_haste') continue;
+  const haste=await p.evaluate(()=>document.getElementById('arma').getBBox().height>100);
+  if(name==='ataque'&&haste) A=ANIMS.ataque_haste;
   fs.mkdirSync(`${OUT}/${name}`,{recursive:true});
   for(let f=0;f<A.n;f++){
    const P=A.pose(f);
@@ -51,7 +68,7 @@ const ANIMS={
       const L=[body,R(v(th),'coxa_'+s),R(v(sh),'canela_'+s),R(v(pe),'pe_'+s)];
       set('coxa_'+s,L.slice(0,2).join(' '));set('canela_'+s,L.slice(0,3).join(' '));set('pe_'+s,L.join(' '));}
     document.querySelectorAll('#arma circle').forEach(c=>{if(!c.dataset.r0)c.dataset.r0=c.getAttribute('r');
-      const r0=+c.dataset.r0; if(r0>8) c.setAttribute('r',r0*P.glow);});
+      const r0=+c.dataset.r0; if(r0>8) c.setAttribute('r',r0*(P.glow||1));});
    },P);
    await p.screenshot({path:`${OUT}/${name}/${String(f).padStart(3,'0')}.png`});
   }

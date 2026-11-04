@@ -1,15 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
-<!-- Necromante - estilo: Dark fantasy estilizado (~5 cabeças, cel-shading 2 tons). Vista lateral, virado para a direita. Pés em y=240.
-     Rig expandido: cada membro em 3 partes. data-pivot = articulação (ombro, cotovelo, punho, quadril, joelho, tornozelo, pescoço, cintura, empunhadura). -->
+<!-- Necromante esqueleto - estilo dark fantasy estilizado. Vista lateral, virado para a direita.
+     Rig de 16 partes; data-pivot = articulação (ombro, cotovelo, punho, quadril, joelho, tornozelo, pescoço, cintura, empunhadura). Pés em y=240. -->
 <g id="braco_sup_tras" data-pivot="126,124">
 <path d="M119,120.2 L107,142.2 Q103.1,149.2 110.2,153 Q117.2,156.9 121,149.8 L133,127.8 Q136.9,120.8 129.8,117 Q122.8,113.1 119,120.2 Z" fill="#46306a"/>
 <path d="M119,120.2 L107,142.2 Q103.1,149.2 110.2,153 L111.5,144.7 L123.5,122.7 L129.8,117 Q122.8,113.1 119,120.2 Z" fill="#36245a"/>
 <path d="M119,120.2 L107,142.2 Q103.1,149.2 110.2,153 Q117.2,156.9 121,149.8 L133,127.8 Q136.9,120.8 129.8,117 Q122.8,113.1 119,120.2 Z" fill="none" stroke="#1a1422" stroke-width="2.5" stroke-linejoin="round"/>
 </g>
 <g id="antebraco_tras" data-pivot="114,146">
-<path d="M120.8,150.2 L117,160.2 L112.5,173.3 L109.8,168.2 L103.8,170.4 L102.5,164.9 L96.5,167 L95.7,160.7 L89.3,161.5 L95.2,155.7 L100,149.8 L107.2,141.8 Z" fill="#46306a"/>
-<path d="M111.4,144.4 L105.1,152.9 L95.7,160.7 L89.3,161.5 L95.2,155.7 L100,149.8 L107.2,141.8 Z" fill="#36245a"/>
-<path d="M120.8,150.2 L117,160.2 L112.5,173.3 L109.8,168.2 L103.8,170.4 L102.5,164.9 L96.5,167 L95.7,160.7 L89.3,161.5 L95.2,155.7 L100,149.8 L107.2,141.8 Z" fill="none" stroke="#1a1422" stroke-width="2.5" stroke-linejoin="round"/>
+<path d="M121.7,150.7 L117,160.2 L112.2,172 L109.5,166.8 L104,168.1 L102.1,163.5 L96.1,165.7 L95.3,159.3 L88.1,159.6 L93,155.5 L88,150.2 L98.5,146.4 L106.3,141.3 Z" fill="#46306a"/>
+<path d="M110.6,143.9 L104.2,152.4 L95.3,159.3 L88.1,159.6 L93,155.5 L88,150.2 L98.5,146.4 L106.3,141.3 Z" fill="#36245a"/>
+<path d="M121.7,150.7 L117,160.2 L112.2,172 L109.5,166.8 L104,168.1 L102.1,163.5 L96.1,165.7 L95.3,159.3 L88.1,159.6 L93,155.5 L88,150.2 L98.5,146.4 L106.3,141.3 Z" fill="none" stroke="#1a1422" stroke-width="2.5" stroke-linejoin="round"/>
 </g>
 <g id="mao_tras" data-pivot="103,164">
 <path d="M99,164 L107,164 L108,172 L99,173 Z" fill="#c9c4a4"/>
@@ -72,13 +72,13 @@
 <path d="M120,118 C132,108 150,112 155,126 C159,140 155,156 149,168 L117,170 C113,152 113,132 120,118 Z" fill="none" stroke="#1a1422" stroke-width="2.5" stroke-linejoin="round"/>
 <path d="M143,124 C151,124 156,133 156,143 C155,151 151,157 145,160 L141,160 C139,148 139,134 143,124 Z" fill="#140f1c"/>
 <path d="M143,124 C151,124 156,133 156,143 C155,151 151,157 145,160 L141,160 C139,148 139,134 143,124 Z" fill="none" stroke="#1a1422" stroke-width="1.4" stroke-linejoin="round"/>
-<path d="M141,130 C146,129 151,131 154.5,133" fill="none" stroke="#1a1422" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M141,130 C146,129 151,131 154.5,133" fill="none" stroke="#1a1422" stroke-width="7.4" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M141,130 C146,129 151,131 154.5,133" fill="none" stroke="#e6e2c6" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M141,137 C146,136 151,138 154.5,140" fill="none" stroke="#1a1422" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M141,137 C146,136 151,138 154.5,140" fill="none" stroke="#1a1422" stroke-width="7.4" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M141,137 C146,136 151,138 154.5,140" fill="none" stroke="#e6e2c6" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M141,144 C146,143 151,145 154.5,147" fill="none" stroke="#1a1422" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M141,144 C146,143 151,145 154.5,147" fill="none" stroke="#1a1422" stroke-width="7.4" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M141,144 C146,143 151,145 154.5,147" fill="none" stroke="#e6e2c6" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M141,151 C146,150 151,152 154.5,154" fill="none" stroke="#1a1422" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M141,151 C146,150 151,152 154.5,154" fill="none" stroke="#1a1422" stroke-width="7.4" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M141,151 C146,150 151,152 154.5,154" fill="none" stroke="#e6e2c6" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M142,126 L142,158" fill="none" stroke="#e6e2c6" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M110,120 C122,106 150,106 162,120 L160,134 L154,128 L150,141 L144,131 L138,143 L132,131 L126,142 L120,129 L114,137 L110,130 Z" fill="#6a4c8c"/>
@@ -129,9 +129,9 @@
 <path d="M184,81 L187,81 L185,96 L182,94 Z" fill="none" stroke="#1a1422" stroke-width="1.4" stroke-linejoin="round"/>
 <circle cx="190" cy="58" r="17" fill="#c4f39a"/>
 <circle cx="190" cy="58" r="13" fill="#eaffd6"/>
-<path d="M174,44 C170,38 172,32 178,30" fill="none" stroke="#8be04a" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M206,66 C212,62 214,56 211,50" fill="none" stroke="#8be04a" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M176,68 C172,72 172,76 175,79" fill="none" stroke="#8be04a" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M174,44 C170,38 172,32 178,30" fill="none" stroke="#8be04a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M206,66 C212,62 214,56 211,50" fill="none" stroke="#8be04a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M176,68 C172,72 172,76 175,79" fill="none" stroke="#8be04a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M180,52 C182,44 196,42 200,52 C202,58 200,62 198,64 L198,68 L193,70 L192,74 L184,74 C180,70 178,60 180,52 Z" fill="#b8e48a"/>
 <path d="M180,52 C180,60 182,68 186,74 L184,74 C180,70 178,60 180,52 Z" fill="#86b85c"/>
 <path d="M180,52 C182,44 196,42 200,52 C202,58 200,62 198,64 L198,68 L193,70 L192,74 L184,74 C180,70 178,60 180,52 Z" fill="none" stroke="#1a1422" stroke-width="2.0" stroke-linejoin="round"/>

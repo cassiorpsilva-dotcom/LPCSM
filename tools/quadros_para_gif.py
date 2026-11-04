@@ -5,9 +5,9 @@ Uso: python3 tools/quadros_para_gif.py PASTA_QUADROS previews/necromante
 import sys, glob, os
 from PIL import Image
 pasta, prefixo = sys.argv[1], sys.argv[2]
-MS = {"parado": 90, "andando": 85, "conjurando": 70}
+MS = {"parado": 90, "andando": 85, "ataque": 55, "conjurando": 70}
 for nome in sorted(os.listdir(pasta)):
-    fr = [Image.open(f).convert("RGB").crop((60, 24, 560, 504)) for f in sorted(glob.glob(f"{pasta}/{nome}/*.png"))]
+    fr = [Image.open(f).convert("RGB").crop((40, 24, 620, 504)) for f in sorted(glob.glob(f"{pasta}/{nome}/*.png"))]
     if not fr: continue
     big = Image.new("RGB", (fr[0].width, fr[0].height * len(fr)))
     for i, f in enumerate(fr): big.paste(f, (0, i * f.height))
