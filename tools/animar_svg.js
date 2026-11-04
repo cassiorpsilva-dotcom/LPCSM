@@ -1,4 +1,5 @@
 // Gera quadros PNG de animações (parado, andando, ataque, conjurando) girando cada <g> no seu data-pivot.
+// Quadrúpedes (SVG com 'mandibula') usam parado / andando / ataque (bote com mordida).
 // 'ataque' vira estocada se a arma for comprida (cajado, lança) e golpe de cima para baixo se for curta (kunai, adaga).
 // Uso: node tools/animar_svg.js personagem_lado_separado.svg pasta_quadros [parado,andando,ataque]
 // Depois: python3 tools/quadros_para_gif.py pasta_quadros previews/prefixo
@@ -40,10 +41,57 @@ const ANIMS={
    [14,{bsf:-40,abf:-14,mbf:84,tl:6,hd:3,dy:-1,glow:1.9,bst:-42,abt:-28,mbt:-25}],
    [19,{glow:1}],[20,{glow:1}]],f)}
 };
+// ---------- quadrúpedes (rig com 'mandibula', 'cauda' e perna_<par>_sup/inf + pata_<par>)
+const PERNAS_Q=['tras_perto','tras_longe','diant_perto','diant_longe'];
+function passoQ(t,amp){ // ciclo de caminhada lateral: tras_perto, diant_perto, tras_longe, diant_longe
+  const fase={tras_perto:0,diant_perto:PI/2,tras_longe:PI,diant_longe:3*PI/2}, o={};
+  for(const L of PERNAS_Q){const p=t+fase[L], lift=Math.max(0,Math.cos(p));
+    if(L.startsWith('tras')){const s=-14*amp*sin(p), i=22*amp*lift; o[L+'_s']=s;o[L+'_i']=i;o[L+'_p']=-(s+i)+14*amp*lift;}
+    else{const s=-12*amp*sin(p), i=8*amp*lift; o[L+'_s']=s;o[L+'_i']=i;o[L+'_p']=-(s+i)+45*amp*lift;}}
+  return o;}
+const pernasQ=(o,d)=>{const r={};for(const L of PERNAS_Q)for(const k of ['s','i','p'])if(o[k]!==undefined)r[L+'_'+k]=o[k]*(L.endsWith('longe')?(d||1):1);return r;};
+const ANIMS_Q={
+ parado:{n:16,ms:90,pose:f=>{const t=2*PI*f/16;return{dy:0.8*sin(t),tl:0.6*sin(t),hd:2*sin(t+0.5),jaw:6+3*sin(3*t),tail:7*sin(2*t),
+   tras_perto_s:sin(t),tras_longe_s:sin(t)}}},
+ andando:{n:16,ms:70,pose:f=>{const t=2*PI*f/16;return Object.assign(passoQ(t,1),{dy:1.2*sin(2*t),tl:sin(2*t),hd:2*sin(2*t+1),jaw:4+2*sin(2*t),tail:10*sin(t)})}},
+ ataque:{n:22,ms:60,pose:f=>keys([
+   [0,{jaw:4}],
+   [6,Object.assign({dx:-6,dy:5,tl:4,hd:14,jaw:8,tail:-12},pernasQ({s:16,i:-12,p:-2}),{tras_perto_s:-6,tras_perto_i:16,tras_perto_p:-8,tras_longe_s:-6,tras_longe_i:16,tras_longe_p:-8})],
+   [10,{dx:20,dy:-8,tl:-8,hd:-16,jaw:40,tail:18,diant_perto_s:-40,diant_perto_i:-14,diant_perto_p:30,diant_longe_s:-30,diant_longe_i:-10,diant_longe_p:30,
+        tras_perto_s:28,tras_perto_i:-10,tras_perto_p:-10,tras_longe_s:24,tras_longe_i:-8,tras_longe_p:-10}],
+   [13,{dx:22,dy:-1,tl:-2,hd:10,jaw:0,tail:10,diant_perto_s:-14,diant_perto_i:-4,diant_perto_p:14,diant_longe_s:-10,diant_longe_i:-4,diant_longe_p:10,
+        tras_perto_s:10,tras_perto_p:-6,tras_longe_s:8,tras_longe_p:-6}],
+   [16,{dx:22,dy:-1,tl:-2,hd:12,jaw:3,tail:8,diant_perto_s:-14,diant_perto_i:-4,diant_perto_p:14,diant_longe_s:-10,diant_longe_i:-4,diant_longe_p:10,
+        tras_perto_s:10,tras_perto_p:-6,tras_longe_s:8,tras_longe_p:-6}],
+   [21,{jaw:4}],[22,{jaw:4}]],f)}
+};
 (async()=>{
  const b=await chromium.launch();const p=await b.newPage({viewport:{width:345*S,height:256*S}});
  const svg=fs.readFileSync(SRC,'utf8').replace('width="256" height="256"',`width="${256*S}" height="${256*S}" style="overflow:visible"`);
- await p.setContent(`<body style="margin:0;background:#ebe7f0"><svg style="position:absolute;left:0;top:0" width="${256*S}" height="${256*S}" viewBox="0 0 256 256"><ellipse cx="132" cy="240" rx="42" ry="4.5" fill="#d3cddc"/></svg><div style="position:absolute;left:0;top:0">${svg}</div></body>`);
+ await p.setContent(`<body style="margin:0;background:#ebe7f0"><svg style="position:absolute;left:0;top:0" width="${256*S}" height="${256*S}" viewBox="0 0 256 256"><ellipse id="sombra" cx="132" cy="240" rx="42" ry="4.5" fill="#d3cddc"/></svg><div style="position:absolute;left:0;top:0">${svg}</div></body>`);
+ const quad=await p.evaluate(()=>{const b=document.querySelector('div svg').getBBox(),e=document.getElementById('sombra');
+   if(document.getElementById('mandibula')){e.setAttribute('cx',b.x+b.width/2);e.setAttribute('rx',b.width*0.42);return true;}return false;});
+ if(quad){
+  for(const [name,A] of Object.entries(ANIMS_Q)){
+   if(!LISTA.includes(name)) continue;
+   fs.mkdirSync(`${OUT}/${name}`,{recursive:true});
+   for(let f=0;f<A.n;f++){
+    await p.evaluate(P=>{
+     const g=id=>document.getElementById(id), pv=id=>g(id).dataset.pivot.split(',').map(Number);
+     const R=(a,id)=>a?`rotate(${a} ${pv(id).join(' ')})`:'';
+     const v=k=>P[k]||0, set=(id,tr)=>g(id).setAttribute('transform',tr);
+     const body=`translate(${v('dx')} ${v('dy')}) `+R(v('tl'),'tronco');
+     set('tronco',body); set('cauda',body+' '+R(v('tail'),'cauda'));
+     const head=body+' '+R(v('hd'),'cabeca'); set('cabeca',head); set('mandibula',head+' '+R(v('jaw'),'mandibula'));
+     for(const L of ['tras_perto','tras_longe','diant_perto','diant_longe']){
+       const c=[body,R(v(L+'_s'),`perna_${L}_sup`),R(v(L+'_i'),`perna_${L}_inf`),R(v(L+'_p'),`pata_${L}`)];
+       set(`perna_${L}_sup`,c.slice(0,2).join(' '));set(`perna_${L}_inf`,c.slice(0,3).join(' '));set(`pata_${L}`,c.join(' '));}
+    },A.pose(f));
+    await p.screenshot({path:`${OUT}/${name}/${String(f).padStart(3,'0')}.png`});
+   }
+  }
+  await b.close(); return;
+ }
  for(let [name,A] of Object.entries(ANIMS)){
   if(!LISTA.includes(name)||name==='ataque_haste') continue;
   const haste=await p.evaluate(()=>document.getElementById('arma').getBBox().height>100);
